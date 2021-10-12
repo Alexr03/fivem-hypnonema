@@ -212,6 +212,62 @@
             TriggerClientEvent(ClientEvents.PauseVideo, screenName);
         }
 
+        [EventHandler(ServerEvents.OnPlaybackReceivedAllBeginWith)]
+        private void OnPlaybackReceivedAllBeginWith([FromSource] Player p, string videoUrl, string screenBeginsWith)
+        {
+            if (p != null && !this.IsPlayerAllowed(p))
+            {
+                this.AddChatMessage(
+                    p,
+                    $"Error: You don't have permissions for: command.{this.cmdName}",
+                    new[] { 255, 0, 0 });
+                return;
+            }
+            
+            try
+            {
+                foreach (var screenName in this.screenCollection.FindAll().Where(x => x.Name.StartsWith(screenBeginsWith)).Select(x => x.Name))
+                {
+                    TriggerEvent(ServerEvents.OnPlaybackReceived, videoUrl, screenName);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteLine(
+                    $"playback attempt failed because of failing to query database. Error: ${e.Message}",
+                    Logger.LogLevel.Error);
+                return;
+            }
+        }
+
+        [EventHandler(ServerEvents.OnPlaybackReceivedAll)]
+        private void OnPlaybackReceivedAll([FromSource] Player p, string videoUrl)
+        {
+            if (p != null && !this.IsPlayerAllowed(p))
+            {
+                this.AddChatMessage(
+                    p,
+                    $"Error: You don't have permissions for: command.{this.cmdName}",
+                    new[] { 255, 0, 0 });
+                return;
+            }
+            
+            try
+            {
+                foreach (var screenName in this.screenCollection.FindAll().Select(x => x.Name))
+                {
+                    TriggerEvent(ServerEvents.OnPlaybackReceived, videoUrl, screenName);
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.WriteLine(
+                    $"playback attempt failed because of failing to query database. Error: ${e.Message}",
+                    Logger.LogLevel.Error);
+                return;
+            }
+        }
+
         [EventHandler(ServerEvents.OnPlaybackReceived)]
         private void OnPlaybackReceived([FromSource] Player p, string videoUrl, string screenName)
         {

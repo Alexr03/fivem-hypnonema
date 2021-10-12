@@ -15,6 +15,8 @@
         public const string OnPause = "Hypnonema.OnPause";
 
         public const string OnPlaybackReceived = "Hypnonema.OnPlaybackReceived";
+        public const string OnPlaybackReceivedAll = "Hypnonema.OnPlaybackReceivedAll";
+        public const string OnPlaybackReceivedAllBeginWith = "OnPlaybackReceivedAllBeginWith";
 
         public const string OnResumeVideo = "Hypnonema.OnResumeVideo";
 
