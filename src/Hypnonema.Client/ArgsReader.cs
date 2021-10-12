@@ -20,6 +20,11 @@
             }
             catch (Exception)
             {
+                if (key == "currentTime")
+                {
+                    // Ignore
+                    return result;
+                }
                 Debug.WriteLine($"failed to read {key}");
             }
 

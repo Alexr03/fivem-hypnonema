@@ -354,6 +354,7 @@
 
         private async Task OnInitialize(string jsonScreens, int rendererLimit, bool isAceAllowed, string lastKnownState)
         {
+            Debug.WriteLine("Renderer limit: " + rendererLimit);
             TextureRendererPool.MaxActiveScaleforms = rendererLimit;
 
             var screens = JsonConvert.DeserializeObject<List<Screen>>(jsonScreens);
@@ -528,7 +529,14 @@
 
         private async Task OnTick()
         {
-            await this.playerPool.OnTick();
+            if (this.playerPool != null)
+            {
+                await this.playerPool.OnTick();
+            }
+            else
+            {
+                Debug.WriteLine("PlayerPool is NULL");
+            }
         }
 
         private CallbackDelegate OnToggleRepeat(IDictionary<string, object> args, CallbackDelegate callback)

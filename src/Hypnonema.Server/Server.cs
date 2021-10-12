@@ -71,6 +71,7 @@
         {
             try
             {
+                Logger.WriteLine("Running " + nameof(OnClientInitialize));
                 var filesCount = 0;
                 var streamDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "stream");
 
@@ -79,6 +80,7 @@
                     var regExp = new Regex(@"hypnonema_texture_renderer\d+\.+gfx");
                     filesCount = Directory.GetFiles(streamDirectory, "*.gfx").Where(path => regExp.IsMatch(path))
                         .ToList().Count;
+                    Logger.WriteLine("Found gfx: " + filesCount);
                 }
                 else
                 {

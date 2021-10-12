@@ -66,7 +66,7 @@
             browser.CreateRuntimeTexture();
             await BaseScript.Delay(1000);
 
-            // Debug.WriteLine("sending init..");
+            Debug.WriteLine("sending init..");
             browser.Init(screen.Name, this.posterUrl, this.resourceName);
 
             if (!screen.Is3DRendered)
@@ -84,7 +84,25 @@
 
         public async Task OnTick()
         {
-            foreach (var player in this.VideoPlayers) await player.OnTick();
+            if (this.VideoPlayers != null)
+            {
+                foreach (var player in this.VideoPlayers)
+                {
+                    if (player != null)
+                    {
+                        await player.OnTick();
+                    }
+                    else
+                    {
+                        // Debug.WriteLine("Player is NULL");
+                    }
+                }
+            }
+            else
+            {
+                Debug.WriteLine("VideoPlayers is NULL");
+            }
+
         }
 
         public void PauseVideo(string screenName)
@@ -145,10 +163,12 @@
         {
             var player = this.VideoPlayers?.FirstOrDefault(p => p.ScreenName == screen.Name);
             if (player != null)
-
+            {
                 // Player exists. No need to synchronize.
                 return;
-
+            }
+            
+            Debug.WriteLine("Creating player for screen - " + screen.Name);
             player = await this.CreateVideoPlayerAsync(screen);
             if (player == null)
             {
@@ -157,6 +177,7 @@
                 Debug.WriteLine("Failed to create player");
                 return;
             }
+            Debug.WriteLine("Player was created successfully - " + player.ScreenName);
 
             Debug.WriteLine($"Synchronizing: {screen.Name}");
             player.SynchronizeState(state.IsPaused, state.CurrentTime, state.CurrentSource, state.Repeat);
