@@ -46,7 +46,14 @@
         {
             if (color == null) color = new[] { 0, 128, 128 };
 
-            player.TriggerEvent("chat:addMessage", new { color, args = new[] { "[Hypnonema]", $"{message}" } });
+            if (player != null)
+            {
+                player.TriggerEvent("chat:addMessage", new { color, args = new[] { "[Hypnonema]", $"{message}" } });
+            }
+            else
+            {
+                Debug.WriteLine("Could not add chat message to player because the player does not exist, or event was triggered server-side | " + message);
+            }
         }
 
         private bool IsPlayerAllowed(Player player)
@@ -102,7 +109,7 @@
         [EventHandler(ServerEvents.OnCloseScreen)]
         private void OnCloseScreen([FromSource] Player p, string screenName)
         {
-            if (!this.IsPlayerAllowed(p))
+            if (p != null && !this.IsPlayerAllowed(p))
             {
                 this.AddChatMessage(p, "Error: You don't have sufficient permissions.", new[] { 255, 0, 0 });
                 return;
@@ -114,7 +121,7 @@
         [EventHandler(ServerEvents.OnCreateScreen)]
         private void OnCreateScreen([FromSource] Player p, string jsonScreen)
         {
-            if (!this.IsPlayerAllowed(p))
+            if (p != null && !this.IsPlayerAllowed(p))
             {
                 this.AddChatMessage(
                     p,
@@ -132,7 +139,7 @@
                 var id = this.screenCollection.Insert(screen);
                 screen.Id = id;
 
-                p.TriggerEvent(ClientEvents.CreatedScreen, JsonConvert.SerializeObject(screen));
+                p?.TriggerEvent(ClientEvents.CreatedScreen, JsonConvert.SerializeObject(screen));
             }
             catch (Exception e)
             {
@@ -145,7 +152,7 @@
         [EventHandler(ServerEvents.OnDeleteScreen)]
         private void OnDeleteScreen([FromSource] Player p, string screenName)
         {
-            if (!this.IsPlayerAllowed(p))
+            if (p != null && !this.IsPlayerAllowed(p))
             {
                 this.AddChatMessage(p, "Error: You don't have sufficient permissions.", new[] { 255, 0, 0 });
                 return;
@@ -161,7 +168,7 @@
         [EventHandler(ServerEvents.OnEditScreen)]
         private void OnEditScreen([FromSource] Player p, string jsonScreen)
         {
-            if (!this.IsPlayerAllowed(p)) return;
+            if (p != null && !this.IsPlayerAllowed(p)) return;
 
             var screen = JsonConvert.DeserializeObject<Screen>(jsonScreen);
 
@@ -194,7 +201,7 @@
         [EventHandler(ServerEvents.OnPause)]
         private void OnPause([FromSource] Player p, string screenName)
         {
-            if (!this.IsPlayerAllowed(p))
+            if (p != null && !this.IsPlayerAllowed(p))
             {
                 this.AddChatMessage(p, "Error: You don't have sufficient permissions", new[] { 255, 0, 0 });
                 return;
@@ -206,7 +213,7 @@
         [EventHandler(ServerEvents.OnPlaybackReceived)]
         private void OnPlaybackReceived([FromSource] Player p, string videoUrl, string screenName)
         {
-            if (!this.IsPlayerAllowed(p))
+            if (p != null && !this.IsPlayerAllowed(p))
             {
                 this.AddChatMessage(
                     p,
@@ -295,7 +302,7 @@
         [EventHandler(ServerEvents.OnResumeVideo)]
         private void OnResume([FromSource] Player p, string screenName)
         {
-            if (!this.IsPlayerAllowed(p))
+            if (p != null && !this.IsPlayerAllowed(p))
             {
                 this.AddChatMessage(p, "Error: You don't have sufficient permissions.", new[] { 255, 0, 0 });
                 return;
@@ -307,13 +314,16 @@
         [EventHandler(ServerEvents.OnSetVolume)]
         private void OnSetVolume([FromSource] Player p, float volume, string screenName)
         {
-            if (this.IsPlayerAllowed(p)) TriggerClientEvent(ClientEvents.SetVolume, volume, screenName);
+            if (p == null || this.IsPlayerAllowed(p))
+            {
+                TriggerClientEvent(ClientEvents.SetVolume, volume, screenName);
+            }
         }
 
         [EventHandler(ServerEvents.OnStateTick)]
         private void OnStateTick([FromSource] Player p, string jsonState)
         {
-            if (!this.IsPlayerAllowed(p)) return;
+            if (p != null && !this.IsPlayerAllowed(p)) return;
 
             var states = JsonConvert.DeserializeObject<List<DuiState>>(jsonState);
             var lastState = (from duiState in states
